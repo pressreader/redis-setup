@@ -33,7 +33,7 @@ then
 fi
 
 echo "*******************************************"
-echo " 2. Download, Unzip, Make Redis version: 'redis-$REDIS_ver"
+echo " 2. Download, Unzip, Make Redis version: 'redis-$REDIS_VER"
 echo "*******************************************"
 
 wget http://download.redis.io/releases/redis-$REDIS_VER.tar.gz
@@ -95,7 +95,7 @@ echo " Edit redis.conf as follows:"
 echo " 1: ... DAEMON_ARGS=/etc/$REDIS_INSTANCE_NAME/redis.conf"
 echo " 2: ... DAEMON=/usr/local/bin/$REDIS_INSTANCE_NAME"
 
-sudo sed -e "s/^DAEMON_ARGS=\/etc\/redis\/redis\.conf$/DAEMON_ARGS=\/etc\/$REDIS_INSTANCE_NAME\/redis\.conf/" -e "s/^DAEMON=\/usr\/local\/bin\/redis-server$/DAEMON=\/usr\/local\/bin\/$REDIS_INSTANCE_NAME/" redis-server > redis-server_tmp
+sudo sed -e "s/^DAEMON_ARGS=\/etc\/redis\/redis\.conf$/DAEMON_ARGS=\/etc\/$REDIS_INSTANCE_NAME\/redis\.conf/" -e "s/^DAEMON=\/usr\/local\/bin\/redis-server$/DAEMON=\/usr\/local\/bin\/$REDIS_INSTANCE_NAME/" init_d_redis-server > redis-server_tmp
 
 sudo cp redis-server_tmp /etc/init.d/$REDIS_INSTANCE_NAME
 rm redis-server_tmp -f

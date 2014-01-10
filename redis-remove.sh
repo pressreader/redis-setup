@@ -1,6 +1,6 @@
 #!/bin/bash
 
-REDIS_INSTANCE_NAME=redis-server-slave
+REDIS_INSTANCE_NAME=redis-server
 
 if [ -z $REDIS_INSTANCE_NAME ]
 then
