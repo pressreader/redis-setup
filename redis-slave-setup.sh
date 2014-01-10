@@ -1,9 +1,9 @@
 #!/bin/bash
 
 REDIS_VER=2.8.3
-UPDATE_PACKAGES=false #true|false
-REDIS_INSTANCE_NAME= #default value is 'redis-server-slave'
-REDIS_PORT=6380 #default redis port is 6379
+UPDATE_LINUX_PACKAGES=false #true|false
+REDIS_INSTANCE_NAME=redis-server-slave
+REDIS_PORT=6380 #default Master port is 6379, so we have to use another one if Master is on the same host
 REDIS_MASTER_IP=127.0.0.1
 REDIS_MASTER_PORT=6379
 
@@ -34,17 +34,17 @@ fi
 
 if [ -z $REDIS_INSTANCE_NAME ]
 then
-        REDIS_INSTANCE_NAME=redis-server-slave
+        echo "ERROR: Redis Instance Name was not specified"
+        exit 0
 fi
 
 
 echo "*******************************************"
-echo " 1. Update and install build packages: $UPDATE_PACKAGES"
+echo " 1. Update and install build packages: $UPDATE_LINUX_PACKAGES"
 echo "*******************************************"
 
-if [ "$UPDATE_PACKAGES" = "true" ]
+if [ "$UPDATE_LINUX_PACKAGES" = "true" ]
 then
-	echo $UPDATE_PACKAGES
 	sudo apt-get update
 	sudo apt-get upgrade
 	sudo apt-get install build-essential

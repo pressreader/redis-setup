@@ -1,10 +1,8 @@
 #!/bin/bash
 
 REDIS_VER=2.8.3
-UPDATE_PACKAGES=false #true|false
-REDIS_INSTANCE_NAME= #use this property in case if
-                     #several nodes are placed on the same host
-                     #default value is 'redis-server'
+UPDATE_LINUX_PACKAGES=false #true|false
+REDIS_INSTANCE_NAME=redis-server
 REDIS_PORT=6379
 
 if [ -z $REDIS_VER ]
@@ -19,14 +17,19 @@ then
 	exit 0
 fi
 
-
-echo "*******************************************"
-echo " 1. Update and install build packages: $UPDATE_PACKAGES"
-echo "*******************************************"
-
-if [ "$UPDATE_PACKAGES" = "true" ]
+if [ -z $REDIS_INSTANCE_NAME ]
 then
-	echo $UPDATE_PACKAGES
+        echo "ERROR: Redis Instance Name was not specified"
+        exit 0
+fi
+
+
+echo "*******************************************"
+echo " 1. Update and install build packages: $UPDATE_LINUX_PACKAGES"
+echo "*******************************************"
+
+if [ "$UPDATE_LINUX_PACKAGES" = "true" ]
+then
 	sudo apt-get update
 	sudo apt-get upgrade
 	sudo apt-get install build-essential
@@ -47,11 +50,6 @@ cd ..
 echo "*******************************************"
 echo " 3. Create 'redis' user, create folders, copy redis files "
 echo "*******************************************"
-
-if [ -z $REDIS_INSTANCE_NAME ]
-then
-	REDIS_INSTANCE_NAME=redis-server
-fi
 
 if [ -z $(cat /etc/passwd | grep redis) ]
 then
