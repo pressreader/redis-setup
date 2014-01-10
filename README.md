@@ -30,3 +30,11 @@ After the execution you'll se something like:
 Run the following command to start Redis service:
 
 	sudo /etc/init.d/redis-server start
+
+Check that the service has been started:
+
+	ps aux | grep redis
+
+The following line should appear:
+
+	redis ... /usr/local/bin/redis-server *:6379
