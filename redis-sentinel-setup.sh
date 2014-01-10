@@ -1,12 +1,18 @@
 #!/bin/bash
 
+echo "THIS IS WORK IN PROGRESS SCRIPT. DO NOT USE IT."
+
+exit 0
+
 echo "*******************************************"
 echo " 1. Update and install build packages"
 echo "*******************************************"
 
-#sudo apt-get update
-#sudo apt-get upgrade
-#sudo apt-get install build-essential
+sudo apt-get update
+sudo apt-get upgrade
+sudo apt-get install build-essential
+
+exit 0
 
 echo "*******************************************"
 echo " 2. Download, Unzip, Make Redis version: '$1'"

@@ -2,10 +2,10 @@
 
 REDIS_VER=2.8.3
 UPDATE_PACKAGES=false #true|false
-REDIS_INSTANCE_NAME= #use this property in case if
-                     #several nodes are placed on the same host
-                     #default value is 'redis-server'
-REDIS_PORT=6379
+REDIS_INSTANCE_NAME= #default value is 'redis-server-slave'
+REDIS_PORT=6380 #default redis port is 6379
+REDIS_MASTER_IP=127.0.0.1
+REDIS_MASTER_PORT=6379
 
 if [ -z $REDIS_VER ]
 then
@@ -17,6 +17,24 @@ if [ -z $REDIS_PORT ]
 then
 	echo "ERROR: Redis port was not specified"
 	exit 0
+fi
+
+if [ -z $REDIS_MASTER_IP ]
+then
+	echo "ERROR: Redis MASTER IP was not specified"
+	exit 0
+fi
+
+
+if [ -z $REDIS_MASTER_PORT ]
+then
+        echo "ERROR: Redis MASTER PORT was not specified"
+        exit 0
+fi
+
+if [ -z $REDIS_INSTANCE_NAME ]
+then
+        REDIS_INSTANCE_NAME=redis-server-slave
 fi
 
 
@@ -33,7 +51,7 @@ then
 fi
 
 echo "*******************************************"
-echo " 2. Download, Unzip, Make Redis version: 'redis-$REDIS_ver"
+echo " 2. Download, Unzip, Make Redis version: 'redis-$REDIS_VER'"
 echo "*******************************************"
 
 wget http://download.redis.io/releases/redis-$REDIS_VER.tar.gz
@@ -47,11 +65,6 @@ cd ..
 echo "*******************************************"
 echo " 3. Create 'redis' user, create folders, copy redis files "
 echo "*******************************************"
-
-if [ -z $REDIS_INSTANCE_NAME ]
-then
-	REDIS_INSTANCE_NAME=redis-server
-fi
 
 if [ -z $(cat /etc/passwd | grep redis) ]
 then
@@ -73,17 +86,18 @@ echo "*******************************************"
 echo " 4. Configure /etc/$REDIS_INSTANCE_NAME/redis.conf "
 echo "*******************************************"
 echo " Edit redis.conf as follows:"
-echo " 1: ... daemonize yes"
-echo " 2: ... pidfile /var/run/$REDIS_INSTANCE_NAME.pid"
-echo " 3: ... port $REDIS_PORT"
-echo " 4: ... dir /var/lib/$REDIS_INSTANCE_NAME"
-echo " 5: ... loglevel notice"
-echo " 6: ... logfile /var/log/$REDIS_INSTANCE_NAME/redis.log"
-echo " 7: ... #save 900 1"
-echo " 8: ... #save 300 10"
-echo " 9: ... #save 60 10000"
+echo " 1:  ... daemonize yes"
+echo " 2:  ... pidfile /var/run/$REDIS_INSTANCE_NAME.pid"
+echo " 3:  ... port $REDIS_PORT"
+echo " 4:  ... dir /var/lib/$REDIS_INSTANCE_NAME"
+echo " 5:  ... loglevel notice"
+echo " 6:  ... logfile /var/log/$REDIS_INSTANCE_NAME/redis.log"
+echo " 7:  ... #save 900 1"
+echo " 8:  ... #save 300 10"
+echo " 9:  ... #save 60 10000"
+echo " 10: ... slaveof $REDIS_MASTER_IP $REDIS_MASTER_PORT"
 
-sudo sed -e "s/^daemonize no$/daemonize yes/" -e "s/^pidfile \/var\/run\/redis\.pid$/pidfile \/var\/run\/$REDIS_INSTANCE_NAME\.pid/" -e "s/^port 6379$/port $REDIS_PORT/" -e "s/^dir \.\//dir \/var\/lib\/$REDIS_INSTANCE_NAME\//" -e "s/^loglevel verbose$/loglevel notice/" -e "s/^logfile \"\"$/logfile \/var\/log\/$REDIS_INSTANCE_NAME\/redis.log/" -e "s/^save 900 1$/#save 900 1/" -e "s/^save 300 10$/#save 300 10/" -e "s/^save 60 10000$/#save 60 10000/" redis-$REDIS_VER/redis.conf > redis_tmp.conf
+sudo sed -e "s/^daemonize no$/daemonize yes/" -e "s/^pidfile \/var\/run\/redis\.pid$/pidfile \/var\/run\/$REDIS_INSTANCE_NAME\.pid/" -e "s/^port 6379$/port $REDIS_PORT/" -e "s/^dir \.\//dir \/var\/lib\/$REDIS_INSTANCE_NAME\//" -e "s/^loglevel verbose$/loglevel notice/" -e "s/^logfile \"\"$/logfile \/var\/log\/$REDIS_INSTANCE_NAME\/redis.log/" -e "s/^save 900 1$/#save 900 1/" -e "s/^save 300 10$/#save 300 10/" -e "s/^save 60 10000$/#save 60 10000/" -e "s/^# slaveof <masterip> <masterport>$/slaveof $REDIS_MASTER_IP $REDIS_MASTER_PORT/" redis-$REDIS_VER/redis.conf > redis_tmp.conf
 
 sudo cp redis_tmp.conf /etc/$REDIS_INSTANCE_NAME/redis.conf
 sudo rm redis_tmp.conf -f
