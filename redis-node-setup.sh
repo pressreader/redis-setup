@@ -49,6 +49,12 @@ then
         exit 0
 fi
 
+if [ -d /var/lib/$REDIS_INSTANCE_NAME ]
+then
+	echo "ERROR: Redis Instance Name=[$REDIS_INSTANCE_NAME] is already in use"
+	exit 0
+fi
+
 if [ "$MODE" = "slave" ]
 then
 
