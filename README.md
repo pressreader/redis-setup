@@ -3,14 +3,13 @@
 	mkdir redis-setup
 	cd redis-setup
 	wget https://raw2.github.com/eugene-kartsev/redis-setup/master/redis-master-setup.sh
-	wget https://raw2.github.com/eugene-kartsev/redis-setup/master/init_d_redis-server
 	
 Edit 'redis-master-setup.sh' file, change the following properties (if you need to):
 
 	REDIS_VER=2.8.3
 	UPDATE_LINUX_PACKAGES=false
 	REDIS_INSTANCE_NAME=redis-server
-	REDIS_PORT=6379	
+	REDIS_INSTANCE_PORT=6379	
 
 Run script:
 
