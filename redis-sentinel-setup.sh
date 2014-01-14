@@ -131,7 +131,7 @@ echo "*****************************************"
 echo " 5. Move and Configure redis-sentinel daemon"
 echo "*****************************************"
 
-if [ ! -f init_d_redis-server ]
+if [ ! -f init_d_redis-sentinel ]
 then
 	wget https://raw2.github.com/eugene-kartsev/redis-setup/master/init_d_redis-sentinel
 fi
