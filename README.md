@@ -32,8 +32,15 @@ Run the following command to start Redis service:
 
 Check that the service has been started:
 
-	ps aux | grep redis
+	redis-cli -p 6379 info replication
 
-The following line should appear:
+The output should look similar to:
 
-	redis ... /usr/local/bin/redis-server *:6379
+	# Replication
+	role:master
+	connected_slaves:0
+	master_repl_offset:0
+	repl_backlog_active:0
+	repl_backlog_size:1048576
+	repl_backlog_first_byte_offset:0
+	repl_backlog_histlen:0

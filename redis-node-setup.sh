@@ -19,6 +19,7 @@ echo "REDIS_INSTANCE_NAME: $REDIS_INSTANCE_NAME"
 echo "REDIS_INSTANCE_PORT: $REDIS_INSTANCE_PORT"
 echo "REDIS_MASTER_IP: $REDIS_MASTER_IP"
 echo "REDIS_MASTER_PORT: $REDIS_MASTER_PORT"
+echo ""
 
 if [ ! "$MODE" = "master" ] && [ ! "$MODE" = "slave" ]
 then
@@ -165,7 +166,7 @@ echo " Edit redis.conf as follows:"
 echo " 1: ... DAEMON_ARGS=/etc/$REDIS_INSTANCE_NAME/redis.conf"
 echo " 2: ... DAEMON=/usr/local/bin/$REDIS_INSTANCE_NAME"
 
-if [ -f init_d_redis-server ]
+if [ ! -f init_d_redis-server ]
 then
 	wget https://raw2.github.com/eugene-kartsev/redis-setup/master/init_d_redis-server
 fi
@@ -191,6 +192,6 @@ echo ""
 echo " Configure $REDIS_INSTANCE_NAME in /etc/$REDIS_INSTANCE_NAME/redis.conf"
 echo ""
 echo " WARNING: Service isn't started by default. "
-echo " Use the following command to manipulate [$REDIS_INSTANCE_NAME] Redis service:"
+echo " Use the following command to manipulate [$REDIS_INSTANCE_NAME] service:"
 echo " sudo /etc/init.d/$REDIS_INSTANCE_NAME [start|stop|restart]"
 echo ""
