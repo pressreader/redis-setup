@@ -1,79 +1,121 @@
 #!/bin/bash
 
-echo "THIS IS WORK IN PROGRESS SCRIPT. DO NOT USE IT."
+REDIS_VER=2.8.3
+SENTINEL_PORT=26379 #default port: 26379
+REDIS_MASTER_IP=127.0.0.1
+REDIS_MASTER_PORT=6379
+SENTINEL_QUORUM=1
 
-exit 0
+UPDATE_LINUX_PACKAGES=false #true|false
+
+
+echo "REDIS_VER: $REDIS_VER"
+echo "SENTINEL_PORT: $SENTINEL_PORT"
+echo "REDIS_MASTER_IP: $REDIS_MASTER_IP"
+echo "REDIS_MASTER_PORT: $REDIS_MASTER_PORT"
+echo "SENTINEL_QUORUM: $SENTINEL_QUORUM"
+echo "UPDATE_LINUX_PACKAGES: $UPDATE_LINUX_PACKAGES"
+echo ""
+
+if [ -z $REDIS_VER ]
+then
+        echo "ERROR: Redis version was not specified"
+        exit 0
+fi
+
+if [ -z $SENTINEL_PORT ]
+then
+        echo "ERROR: Sentinel port was not specified"
+        exit 0
+fi
+
+if [ -n "$(netstat -an | grep :$SENTINEL_PORT)" ]
+then
+        echo "ERROR: Sentinel port has been already taken"
+        exit 0
+fi
+
+
+if [ -z $REDIS_MASTER_IP ]
+then
+        echo "ERROR: Redis master ip was not specified"
+        exit 0
+fi
+
+if [ -z $REDIS_MASTER_PORT ]
+then
+        echo "ERROR: Redis master port was not specified"
+        exit 0
+fi
+
+
 
 echo "*******************************************"
 echo " 1. Update and install build packages"
 echo "*******************************************"
 
-sudo apt-get update
-sudo apt-get upgrade
-sudo apt-get install build-essential
 
-exit 0
+if [ "$UPDATE_LINUX_PACKAGES" = "true" ]
+then
+	sudo apt-get update
+	sudo apt-get upgrade
+	sudo apt-get install build-essential
+fi
 
 echo "*******************************************"
 echo " 2. Download, Unzip, Make Redis version: '$1'"
 echo "*******************************************"
 
-REDIS_VER=$1
-#wget http://download.redis.io/releases/redis-$REDIS_VER.tar.gz
-#tar xzf redis-$REDIS_VER.tar.gz
-#rm redis-$REDIS_VER.tar.gz -f
+DELETE_TAR=true
+if [ -f redis-$REDIS_VER.tar.gz ]
+then
+        DELETE_TAR=false
+else
+	wget http://download.redis.io/releases/redis-$REDIS_VER.tar.gz
+fi
+
+tar xzf redis-$REDIS_VER.tar.gz
 cd redis-$REDIS_VER
 make
 sudo make install
+cd ..
 
+if [ "$DELETE_TAR" = "true" ]
+then
+        rm redis-$REDIS_VER.tar.gz -f
+fi
 
 echo "*******************************************"
 echo " 3. Create 'redis' user, create folders, copy redis files "
 echo "*******************************************"
 
-sudo useradd redis
+if [ -z $(cat /etc/passwd | grep redis) ]
+then
+        echo "ADDING 'redis' user"
+        sudo useradd redis
+fi
 
-sudo mkdir /etc/redis /etc/redis-sentinel
-sudo mkdir /var/lib/redis /var/lib/redis-sentinel
-sudo mkdir /var/log/redis /var/log/redis-sentinel
+sudo mkdir /etc/redis-sentinel
+sudo mkdir /var/lib/redis-sentinel
+sudo mkdir /var/log/redis-sentinel
 
-sudo chown redis.redis /var/lib/redis
-sudo chown redis.redis /var/log/redis
 sudo chown redis.redis /var/lib/redis-sentinel
 sudo chown redis.redis /var/log/redis-sentinel
 
-sudo cp src/redis-server src/redis-cli src/redis-sentinel /usr/local/bin
-sudo cp redis.conf /etc/redis/redis.conf
-sudo cp sentinel.conf /etc/redis-sentinel/sentinel.conf
+sudo cp redis-$REDIS_VER/src/redis-sentinel /usr/local/bin/redis-sentinel
 
 echo "*******************************************"
-echo " 4. Configure /etc/redis/redis.conf "
-echo "*******************************************"
-echo " Edit redis.conf as follows:"
-echo " 1: ... daemonize yes"
-echo " 2: ... dir /var/lib/redis"
-echo " 3: ... loglevel notice"
-echo " 4: ... logfile /var/log/redis/redis.log"
-echo " 5: ... #save 900 1"
-echo " 5: ... #save 300 10"
-echo " 5: ... #save 60 10000"
-
-
-sudo sed -e "s/^daemonize no$/daemonize yes/" -e "s/^dir \.\//dir \/var\/lib\/redis\//" -e "s/^loglevel verbose$/loglevel notice/" -e "s/^logfile stdout$/logfile \/var\/log\/redis\/redis.log/" -e "s/^save 900 1$/#save 900 1/" -e "s/^save 300 10$/#save 300 10/" -e "s/^save 60 10000$/#save 60 10000/" redis.conf > redis_tmp.conf
-
-sudo cp redis_tmp.conf /etc/redis/redis.conf
-sudo rm redis_tmp.conf -f
-
-echo "*******************************************"
-echo " 5. Configure /etc/redis-sentinel/sentinel.conf "
+echo " 4. Configure /etc/redis-sentinel/sentinel.conf "
 echo "*******************************************"
 echo " Edit sentinel.conf as follows:"
-echo " 1: ... daemonize yes"
-echo " 2: ... dir /var/lib/redis-sentinel"
-echo " 3: ... loglevel notice"
-echo " 4: ... logfile /var/log/redis-sentinel/redis-sentinel.log"
+echo " 1: ... port $SENTINEL_PORT"
+echo " 2: ... sentinel monitor mymaster $REDIS_MASTER_IP $REDIS_MASTER_PORT $SENTINEL_QUORUM"
+echo " 3: ... daemonize yes"
+echo " 4: ... dir /var/lib/redis-sentinel"
+echo " 5: ... loglevel notice"
+echo " 6: ... logfile /var/log/redis-sentinel/redis-sentinel.log"
 
-sudo cp sentinel.conf sentinel_tmp.conf
+sudo sed -e "s/^port 26379$/port $SENTINEL_PORT/" -e "s/^sentinel monitor mymaster 127\.0\.0\.1 6379 2$/sentinel monitor mymaster $REDIS_MASTER_IP $REDIS_MASTER_PORT $SENTINEL_QUORUM/" redis-$REDIS_VER/sentinel.conf > sentinel_tmp.conf
 
 sudo echo "daemonize yes" >> sentinel_tmp.conf
 sudo echo "dir /var/lib/redis-sentinel" >> sentinel_tmp.conf
@@ -83,31 +125,36 @@ sudo echo "logfile /var/log/redis-sentinel/redis-sentinel.log" >> sentinel_tmp.c
 sudo cp sentinel_tmp.conf /etc/redis-sentinel/sentinel.conf
 sudo rm sentinel_tmp.conf -f
 
+sudo chown redis.redis /etc/redis-sentinel/sentinel.conf
 
 echo "*****************************************"
-echo " 6. Move and Configure redis-server and redis-sentinel as daemons"
+echo " 5. Move and Configure redis-sentinel daemon"
 echo "*****************************************"
 
-sudo cp redis-server /etc/init.d/redis-server
-sudo cp redis-sentinel /etc/init.d/redis-sentinel
+if [ ! -f init_d_redis-sentinel ]
+then
+	wget https://raw2.github.com/eugene-kartsev/redis-setup/master/init_d_redis-sentinel
+fi
 
-sudo chmod +x /etc/init.d/redis-server
+sudo sed -e "s/^1111$/2222/" init_d_redis-sentinel > redis-sentinel_tmp
+
+sudo cp redis-sentinel_tmp /etc/init.d/redis-sentinel
+
 sudo chmod +x /etc/init.d/redis-sentinel
+sudo rm redis-sentinel_tmp -f
 
 echo "*****************************************"
 echo " 7. Auto-Enable redis-server and redis-sentinel"
 echo "*****************************************"
 
-sudo update-rc.d redis-server defaults
 sudo update-rc.d redis-sentinel defaults
 
 echo "*****************************************"
 echo " Installation Complete!"
 echo ""
-echo " Configure redis-server in /etc/redis/redis.conf"
 echo " Configure redis-sentinel in /etc/redis-sentinel/sentinel.conf"
 echo ""
-echo " To start redis-server execute /etc/init.d/redis-server start"
-echo " To start redis-sentinel execute /etc/init.d/redis-sentinel start"
+echo " WARNING: Service isn't started by default."
+echo " User the following command to manipulate redis-sentinel instance."
+echo " sudo /etc/init.d/redis-sentinel [start|stop|restart]"
 echo ""
-read -p "Press [Enter] to continue..."
