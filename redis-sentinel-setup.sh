@@ -29,7 +29,7 @@ then
         exit 0
 fi
 
-if [ -n "$(netstat -an | grep :$SENTINEL_PORT)" ]
+if [ -n "$(netstat -an | grep LISTEN | grep :$SENTINEL_PORT)" ]
 then
         echo "ERROR: Sentinel port has been already taken"
         exit 0
