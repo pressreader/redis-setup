@@ -38,7 +38,7 @@ then
 	exit 0
 fi
 
-if [ -n "$(netstat -an | grep :$REDIS_INSTANCE_PORT)" ]
+if [ -n "$(netstat -an | grep LISTEN | grep :$REDIS_INSTANCE_PORT)" ]
 then
         echo "ERROR: Redis port has been already taken"
 	exit 0
