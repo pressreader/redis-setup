@@ -5,6 +5,10 @@ SENTINEL_PORT=26379 #default port: 26379
 REDIS_MASTER_IP=127.0.0.1
 REDIS_MASTER_PORT=6379
 SENTINEL_QUORUM=1
+NODE_DOWN_AFTER_MILLISECONDS=3000 # Number of milliseconds the master (or any attached slave or sentinel) should
+                                  # be unreachable (as in, not acceptable reply to PING, continuously, for the
+                                  # specified period) in order to consider it in S_DOWN state (Subjectively
+                                  # Down).
 
 UPDATE_LINUX_PACKAGES=false #true|false
 
@@ -110,12 +114,15 @@ echo "*******************************************"
 echo " Edit sentinel.conf as follows:"
 echo " 1: ... port $SENTINEL_PORT"
 echo " 2: ... sentinel monitor mymaster $REDIS_MASTER_IP $REDIS_MASTER_PORT $SENTINEL_QUORUM"
-echo " 3: ... daemonize yes"
-echo " 4: ... dir /var/lib/redis-sentinel"
-echo " 5: ... loglevel notice"
-echo " 6: ... logfile /var/log/redis-sentinel/redis-sentinel.log"
+echo " 3: ... sentinel down-after-milliseconds mymaster $NODE_DOWN_AFTER_MILLISECONDS"
+echo " 4: ... daemonize yes"
+echo " 5: ... dir /var/lib/redis-sentinel"
+echo " 6: ... loglevel notice"
+echo " 7: ... logfile /var/log/redis-sentinel/redis-sentinel.log"
 
-sudo sed -e "s/^port 26379$/port $SENTINEL_PORT/" -e "s/^sentinel monitor mymaster 127\.0\.0\.1 6379 2$/sentinel monitor mymaster $REDIS_MASTER_IP $REDIS_MASTER_PORT $SENTINEL_QUORUM/" redis-$REDIS_VER/sentinel.conf > sentinel_tmp.conf
+sudo sed -e "s/^port 26379$/port $SENTINEL_PORT/" redis-$REDIS_VER/sentinel.conf >  sentinel_tmp.conf
+sudo sed -i "s/^sentinel monitor mymaster 127\.0\.0\.1 6379 2$/sentinel monitor mymaster $REDIS_MASTER_IP $REDIS_MASTER_PORT $SENTINEL_QUORUM/" sentinel_tmp.conf
+sudo sed -i "s/^sentinel down-after-milliseconds mymaster 30000$/sentinel down-after-milliseconds mymaster $NODE_DOWN_AFTER_MILLISECONDS/" sentinel_tmp.conf
 
 sudo echo "daemonize yes" >> sentinel_tmp.conf
 sudo echo "dir /var/lib/redis-sentinel" >> sentinel_tmp.conf
@@ -133,7 +140,7 @@ echo "*****************************************"
 
 if [ ! -f init_d_redis-sentinel ]
 then
-	wget https://raw2.github.com/eugene-kartsev/redis-setup/master/init_d_redis-sentinel
+	wget https://raw2.github.com/PressReader/redis-setup/master/init_d_redis-sentinel
 fi
 
 sudo sed -e "s/^1111$/2222/" init_d_redis-sentinel > redis-sentinel_tmp
