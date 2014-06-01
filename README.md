@@ -2,7 +2,7 @@
 
 	mkdir redis-setup
 	cd redis-setup
-	wget https://raw2.github.com/eugene-kartsev/redis-setup/master/redis-master-setup.sh
+	wget https://raw2.github.com/PressReader/redis-setup/master/redis-master-setup.sh
 	
 Edit 'redis-master-setup.sh' file, change the following properties (if you need to):
 
@@ -50,7 +50,7 @@ The output should look similar to:
 
 	mkdir redis-setup
 	cd redis-setup
-	wget https://raw2.github.com/eugene-kartsev/redis-setup/master/redis-slave-setup.sh
+	wget https://raw2.github.com/PressReader/redis-setup/master/redis-slave-setup.sh
 
 Edit 'redis-slave-setup.sh' file:
 
@@ -109,7 +109,7 @@ Output:
 
 	mkdir redis-sentinel
 	cd redis-sentinel
-	wget https://raw2.github.com/eugene-kartsev/redis-setup/master/redis-sentinel-setup.sh
+	wget https://raw2.github.com/PressReader/redis-setup/master/redis-sentinel-setup.sh
 
 Edit 'redis-sentinel-setup.sh' file:
 

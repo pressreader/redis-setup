@@ -11,7 +11,7 @@ REDIS_MASTER_PORT=6379
 
 if [ ! -f redis-node-setup.sh ]
 then
-        wget https://raw2.github.com/eugene-kartsev/redis-setup/master/redis-node-setup.sh
+        wget https://raw2.github.com/PressReader/redis-setup/master/redis-node-setup.sh
 fi
 
 

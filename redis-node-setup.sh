@@ -38,7 +38,7 @@ then
 	exit 0
 fi
 
-if [ -n "$(netstat -an | grep :$REDIS_INSTANCE_PORT)" ]
+if [ -n "$(netstat -an | grep LISTEN | grep :$REDIS_INSTANCE_PORT)" ]
 then
         echo "ERROR: Redis port has been already taken"
 	exit 0
@@ -168,7 +168,7 @@ echo " 2: ... DAEMON=/usr/local/bin/$REDIS_INSTANCE_NAME"
 
 if [ ! -f init_d_redis-server ]
 then
-	wget https://raw2.github.com/eugene-kartsev/redis-setup/master/init_d_redis-server
+	wget https://raw2.github.com/PressReader/redis-setup/master/init_d_redis-server
 fi
 
 sudo sed -e "s/^DAEMON_ARGS=\/etc\/redis\/redis\.conf$/DAEMON_ARGS=\/etc\/$REDIS_INSTANCE_NAME\/redis\.conf/" -e "s/^DAEMON=\/usr\/local\/bin\/redis-server$/DAEMON=\/usr\/local\/bin\/$REDIS_INSTANCE_NAME/" init_d_redis-server > redis-server_tmp
