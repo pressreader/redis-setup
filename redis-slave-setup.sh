@@ -1,9 +1,9 @@
 #!/bin/bash
 
-REDIS_VER=2.8.3
+REDIS_VER=2.8.9
 UPDATE_LINUX_PACKAGES=false #true|false
-REDIS_INSTANCE_NAME=redis-server-slave6381
-REDIS_INSTANCE_PORT=6381 #default Master port is 6379
+REDIS_INSTANCE_NAME=redis-server-slave6380
+REDIS_INSTANCE_PORT=6380 #default Master port is 6379
                          #so we have to use another one
                          #if master node is on the same host
 REDIS_MASTER_IP=127.0.0.1

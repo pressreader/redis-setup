@@ -1,6 +1,6 @@
 #!/bin/bash
 
-REDIS_VER=2.8.3
+REDIS_VER=2.8.9
 UPDATE_LINUX_PACKAGES=false #true|false
 REDIS_INSTANCE_NAME=redis-server
 REDIS_INSTANCE_PORT=6379

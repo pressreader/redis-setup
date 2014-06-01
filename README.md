@@ -6,7 +6,7 @@
 	
 Edit 'redis-master-setup.sh' file, change the following properties (if you need to):
 
-	REDIS_VER=2.8.3
+	REDIS_VER=2.8.9
 	UPDATE_LINUX_PACKAGES=false
 	REDIS_INSTANCE_NAME=redis-server
 	REDIS_INSTANCE_PORT=6379	
