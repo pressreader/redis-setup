@@ -1,6 +1,6 @@
 #!/bin/bash
 
-REDIS_VER=2.8.9
+REDIS_VER=2.8.19
 SENTINEL_PORT=26379 #default port: 26379
 REDIS_MASTER_IP=127.0.0.1
 REDIS_MASTER_PORT=6379
@@ -140,7 +140,7 @@ echo "*****************************************"
 
 if [ ! -f init_d_redis-sentinel ]
 then
-	wget https://raw2.github.com/PressReader/redis-setup/master/init_d_redis-sentinel
+	wget https://github.com/PressReader/redis-setup/raw/master/init_d_redis-sentinel
 fi
 
 sudo sed -e "s/^1111$/2222/" init_d_redis-sentinel > redis-sentinel_tmp

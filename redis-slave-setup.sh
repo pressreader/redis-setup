@@ -1,6 +1,6 @@
 #!/bin/bash
 
-REDIS_VER=2.8.9
+REDIS_VER=2.8.19
 UPDATE_LINUX_PACKAGES=false #true|false
 REDIS_INSTANCE_NAME=redis-server-slave6380
 REDIS_INSTANCE_PORT=6380 #default Master port is 6379
@@ -11,7 +11,7 @@ REDIS_MASTER_PORT=6379
 
 if [ ! -f redis-node-setup.sh ]
 then
-        wget https://raw2.github.com/PressReader/redis-setup/master/redis-node-setup.sh
+        wget https://github.com/PressReader/redis-setup/raw/master/redis-node-setup.sh
 fi
 
 
